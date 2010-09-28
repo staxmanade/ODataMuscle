@@ -1,0 +1,10 @@
+*[Rr]e[Ss]harper.user
+[Dd]ebug/
+[Rr]elease/
+*.suo
+_ReSharper.*/
+TestResult.xml
+*.sln.cache
+*.VisualState.xml
+*.csproj.user
+*.swp
