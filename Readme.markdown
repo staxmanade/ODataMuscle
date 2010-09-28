@@ -1,4 +1,4 @@
-ODataMuscle - Strongly typed helpers over an OData query (to smack away those pesky magic strings)
+ODataMuscle - Strongly typed helpers over OData
 =======
 
 # LICENSE
