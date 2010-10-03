@@ -7,6 +7,8 @@ namespace ODataMuscle.Tests
     [TestFixture]
     public class ODataMuscleExtensionTests
     {
+        private TestEntities _testEntities;
+
         #region Simple Test Classes
         public class FooParent
         {
@@ -31,35 +33,41 @@ namespace ODataMuscle.Tests
         }
         #endregion
 
+        [SetUp]
+        public void Setup()
+        {
+            _testEntities = new TestEntities();
+        }
+
         [Test]
         public void Should_expand_single_property()
         {
-            var testEntities = new TestEntities();
-            var dataServiceQuery = testEntities.Parents.Expand(x => x.Child);
+            var dataServiceQuery = _testEntities.Parents.Expand(x => x.Child);
+
             dataServiceQuery.UriShouldContain("$expand=Child");
         }
 
         [Test]
         public void Should_expand_single_properties_single_child_property()
         {
-            var testEntities = new TestEntities();
-            var dataServiceQuery = testEntities.Parents.Expand(x => x.Child.Parent);
+            var dataServiceQuery = _testEntities.Parents.Expand(x => x.Child.Parent);
+
             dataServiceQuery.UriShouldContain("$expand=Child/Parent");
         }
 
         [Test]
         public void Should_expand_single_properties_single_child_property_recursively()
         {
-            var testEntities = new TestEntities();
-            var dataServiceQuery = testEntities.Parents.Expand(x => x.Child.Parent.Child.Parent.Child.Parent.Child.Parent);
+            var dataServiceQuery = _testEntities.Parents.Expand(x => x.Child.Parent.Child.Parent.Child.Parent.Child.Parent);
+
             dataServiceQuery.UriShouldContain("$expand=Child/Parent/Child/Parent/Child/Parent/Child/Parent");
         }
 
         [Test]
         public void Should_expand_nested_property_contained_in_a_collection_()
         {
-            var testEntities = new TestEntities();
-            var dataServiceQuery = testEntities.Parents.Expand(parent => parent.Children.Expand(child => child.Parent));
+            var dataServiceQuery = _testEntities.Parents.Expand(parent => parent.Children.Expand(child => child.Parent));
+
             dataServiceQuery.UriShouldContain("$expand=Children/Parent");
         }
 
