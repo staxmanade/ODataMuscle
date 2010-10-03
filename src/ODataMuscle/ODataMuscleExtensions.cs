@@ -5,6 +5,52 @@ using System.Text;
 
 namespace ODataMuscle
 {
+    public static class ODataMuscleExtensions
+    {
+        public static DataServiceQuery<T> Expand<T, TProperty>(this DataServiceQuery<T> entities, Expression<Func<T, TProperty>> propertyExpressions)
+        {
+            string propertyName = propertyExpressions.GetMemberName();
+            return entities.Expand(propertyName);
+        }
+
+        public static string Expand<T, TProperty>(this DataServiceCollection<T> collection, Expression<Func<T, TProperty>> propertyExpressions)
+        {
+            string propertyName = propertyExpressions.GetMemberName();
+            return propertyName;
+        }
+
+        private static string GetMemberName<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
+        {
+            var lambdaExpression = propertyExpression.Body as MethodCallExpression;
+            if (lambdaExpression != null)
+            {
+                dynamic innerExpression = lambdaExpression.Arguments[1];
+                var innerProperty = innerExpression.Operand;
+                var ipBody = innerProperty.Body;
+
+                var x = ipBody.Member.Name;
+                dynamic firstArg = lambdaExpression.Arguments[0];
+                return firstArg.Member.Name + "/" + x.ToString();
+            }
+            var node = propertyExpression.Body as MemberExpression;
+            var stringBuilder = new StringBuilder();
+            var buildName = BuildName(node, stringBuilder);
+            return buildName.ToString();
+        }
+
+        private static StringBuilder BuildName(MemberExpression exp, StringBuilder stringBuilder)
+        {
+            if (exp != null)
+            {
+                BuildName(exp.Expression as MemberExpression, stringBuilder);
+                stringBuilder.Append(exp.Member.Name);
+                stringBuilder.Append("/");
+            }
+
+            return stringBuilder;
+        }
+    }
+
     //// copied from http://blogs.msdn.com/b/stuartleeks/archive/2008/09/15/dataservicequery-t-expand.aspx
     //public static class DataServiceQueryExtensions
     //{
@@ -78,49 +124,4 @@ namespace ODataMuscle
     //    }
     //}
 
-    public static class StaticallyTypedEntitiesHelper
-    {
-        public static DataServiceQuery<T> Expand<T, TProperty>(this DataServiceQuery<T> entities, Expression<Func<T, TProperty>> propertyExpressions)
-        {
-            string propertyName = propertyExpressions.GetMemberName();
-            return entities.Expand(propertyName);
-        }
-
-        public static string Expand<T, TProperty>(this DataServiceCollection<T> collection, Expression<Func<T, TProperty>> propertyExpressions)
-        {
-            string propertyName = propertyExpressions.GetMemberName();
-            return propertyName;
-        }
-
-        public static string GetMemberName<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
-        {
-            var lambdaExpression = propertyExpression.Body as MethodCallExpression;
-            if (lambdaExpression != null)
-            {
-                dynamic innerExpression = lambdaExpression.Arguments[1];
-                var innerProperty = innerExpression.Operand;
-                var ipBody = innerProperty.Body;
-
-                var x = ipBody.Member.Name;
-                dynamic firstArg = lambdaExpression.Arguments[0];
-                return firstArg.Member.Name + "/" + x.ToString();
-            }
-            var node = propertyExpression.Body as MemberExpression;
-            var stringBuilder = new StringBuilder();
-            var buildName = BuildName(node, stringBuilder);
-            return buildName.ToString();
-        }
-
-        public static StringBuilder BuildName(MemberExpression exp, StringBuilder stringBuilder)
-        {
-            if (exp != null)
-            {
-                BuildName(exp.Expression as MemberExpression, stringBuilder);
-                stringBuilder.Append(exp.Member.Name);
-                stringBuilder.Append("/");
-            }
-
-            return stringBuilder;
-        }
-    }
 }
