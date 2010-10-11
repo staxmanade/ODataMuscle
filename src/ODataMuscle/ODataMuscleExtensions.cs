@@ -7,47 +7,46 @@ namespace ODataMuscle
 {
     public static class ODataMuscleExtensions
     {
+
         public static DataServiceQuery<T> Expand<T, TProperty>(this DataServiceQuery<T> entities, Expression<Func<T, TProperty>> propertyExpressions)
         {
-            string propertyName = propertyExpressions.GetMemberName();
+            string propertyName = ExpandPropertyName(propertyExpressions);
             return entities.Expand(propertyName);
         }
 
         public static string Expand<T, TProperty>(this DataServiceCollection<T> collection, Expression<Func<T, TProperty>> propertyExpressions)
         {
-            string propertyName = propertyExpressions.GetMemberName();
+            string propertyName = ExpandPropertyName(propertyExpressions);
             return propertyName;
         }
 
-        private static string GetMemberName<T, TProperty>(this Expression<Func<T, TProperty>> propertyExpression)
+        private static string ExpandPropertyName(Expression exp)
         {
-            var lambdaExpression = propertyExpression.Body as MethodCallExpression;
-            if (lambdaExpression != null)
+            string str = string.Empty;
+            switch (exp.NodeType)
             {
-                dynamic innerExpression = lambdaExpression.Arguments[1];
-                var innerProperty = innerExpression.Operand;
-                var ipBody = innerProperty.Body;
-
-                var x = ipBody.Member.Name;
-                dynamic firstArg = lambdaExpression.Arguments[0];
-                return firstArg.Member.Name + "/" + x.ToString();
+                case ExpressionType.MemberAccess:
+                    MemberExpression mx = (exp as MemberExpression);
+                    str = ExpandPropertyName(mx.Expression);
+                    str += (str.Length > 0 ? "/" : "") + mx.Member.Name;
+                    break;
+                case ExpressionType.Lambda:
+                    str = ExpandPropertyName((exp as LambdaExpression).Body);
+                    break;
+                case ExpressionType.Call:
+                    MethodCallExpression mcx = (exp as MethodCallExpression);
+                    //this might have to iterate them right to left and not left to right for propery argument order
+                    foreach (Expression arg in mcx.Arguments)
+                    {
+                        str += (str.Length > 0 ? "/" : "") + ExpandPropertyName(arg);
+                    }
+                    break;
+                case ExpressionType.Quote:
+                    UnaryExpression ux = (exp as UnaryExpression);
+                    str = ExpandPropertyName(ux.Operand);
+                    break;
             }
-            var node = propertyExpression.Body as MemberExpression;
-            var stringBuilder = new StringBuilder();
-            var buildName = BuildName(node, stringBuilder);
-            return buildName.ToString();
-        }
-
-        private static StringBuilder BuildName(MemberExpression exp, StringBuilder stringBuilder)
-        {
-            if (exp != null)
-            {
-                BuildName(exp.Expression as MemberExpression, stringBuilder);
-                stringBuilder.Append(exp.Member.Name);
-                stringBuilder.Append("/");
-            }
-
-            return stringBuilder;
+            return str;
         }
     }
 
