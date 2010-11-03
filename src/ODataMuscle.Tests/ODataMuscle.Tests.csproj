@@ -37,12 +37,14 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services" />
     <Reference Include="System.Data.Services.Client" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ODataMuscleServerExtensionTests.cs" />
     <Compile Include="NetflixCatalog.cs" />
-    <Compile Include="ODataMuscleExtensionTests.cs" />
+    <Compile Include="ODataMuscleClientExtensionTests.cs" />
     <Compile Include="StaticDataServiceQueryAssertionHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service References\Netflix\Reference.cs">
