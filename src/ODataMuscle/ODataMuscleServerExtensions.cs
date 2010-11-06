@@ -6,7 +6,7 @@ namespace ODataMuscle
 {
     public static class ODataMuscleServerExtensions
     {
-        public static FluentDataServiceConfiguration<TEntityContext> ToFluentConfig<TEntityContext>(this DataServiceConfiguration configuration)
+        public static FluentDataServiceConfiguration<TEntityContext> ToFluentConfig<TEntityContext>(this IDataServiceConfiguration configuration)
         {
             return new FluentDataServiceConfiguration<TEntityContext>(configuration);
         }
@@ -14,14 +14,14 @@ namespace ODataMuscle
 
     public class FluentDataServiceConfiguration<TEntityContext>
     {
-        private readonly DataServiceConfiguration _config;
+        private readonly IDataServiceConfiguration _config;
 
-        public FluentDataServiceConfiguration(DataServiceConfiguration config)
+        public FluentDataServiceConfiguration(IDataServiceConfiguration config)
         {
             _config = config;
         }
 
-        public DataServiceConfiguration Config { get { return _config; } }
+        public IDataServiceConfiguration Config { get { return _config; } }
 
         public FluentDataServiceConfiguration<TEntityContext> SetEntitySetAccessRule(string name, EntitySetRights rights)
         {
@@ -36,8 +36,7 @@ namespace ODataMuscle
             return this;
         }
 
-        //TODO
-        //public FluentDataServiceConfiguration<TEntityContext> SetServiceOperationAccessRule<TProperty>(Expression<Func<TEntityContext, TProperty>> propertyExpression, EntitySetRights rights)
+        //public FluentDataServiceConfiguration<TEntityContext> SetServiceOperationAccessRule(Expression<Action<TEntityContext>> propertyExpression, ServiceOperationRights rights)
         //{
         //    var propName = GetExpressionMemberName(propertyExpression);
         //    _config.SetServiceOperationAccessRule(propName, rights);
@@ -51,7 +50,7 @@ namespace ODataMuscle
 
         public static implicit operator DataServiceConfiguration(FluentDataServiceConfiguration<TEntityContext> fluentConfig)
         {
-            return fluentConfig._config;
+            return (DataServiceConfiguration)fluentConfig._config;
         }
     }
 }
