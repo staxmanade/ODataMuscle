@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Data.Services.Client;
 using System.Linq;
 using NUnit.Framework;
@@ -19,6 +20,7 @@ namespace ODataMuscle.Tests
             public int Id { get; set; }
             public FooChild Child { get; set; }
             public DataServiceCollection<FooChild> Children { get; set; }
+            public Collection<FooChild> ChildrenAsCollection { get; set; }
         }
 
         [global::System.Data.Services.Common.DataServiceKeyAttribute("Id")]
@@ -80,6 +82,14 @@ namespace ODataMuscle.Tests
             var dataServiceQuery = _testEntities.Parents.Expand(parent => parent.Children.Expand(child => child.Parent));
 
             dataServiceQuery.UriShouldContain("$expand=Children/Parent");
+        }
+
+        [Test]
+        public void Should_expand_nested_property_contained_in_a_collection_X()
+        {
+            var dataServiceQuery = _testEntities.Parents.Expand(parent => parent.ChildrenAsCollection.Expand(child => child.Parent));
+
+            dataServiceQuery.UriShouldContain("$expand=ChildrenAsCollection/Parent");
         }
 
 

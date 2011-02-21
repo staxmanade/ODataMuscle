@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Services.Client;
 using System.Linq.Expressions;
 
@@ -51,7 +52,7 @@ namespace ODataMuscle
             return entities.Expand(propertyName);
         }
 
-        public static string Expand<T, TProperty>(this DataServiceCollection<T> collection, 
+        public static string Expand<T, TProperty>(this IEnumerable<T> collection,
             Expression<Func<T, TProperty>> propertyExpressions)
         {
             string propertyName = ExpandPropertyName(propertyExpressions);
